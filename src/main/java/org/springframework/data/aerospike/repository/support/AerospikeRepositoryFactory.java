@@ -3,10 +3,10 @@
  */
 package org.springframework.data.aerospike.repository.support;
 
-import static org.springframework.data.querydsl.QueryDslUtils.QUERY_DSL_PRESENT;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import org.springframework.data.aerospike.core.AerospikeOperations;
 import org.springframework.data.aerospike.mapping.AerospikePersistentEntity;
@@ -16,10 +16,11 @@ import org.springframework.data.aerospike.repository.query.AerospikeQueryCreator
 import org.springframework.data.keyvalue.core.KeyValueOperations;
 import org.springframework.data.keyvalue.repository.support.QuerydslKeyValueRepository;
 import org.springframework.data.keyvalue.repository.support.SimpleKeyValueRepository;
+import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.context.MappingContext;
-import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.projection.ProjectionFactory;
-import org.springframework.data.querydsl.QueryDslPredicateExecutor;
+import org.springframework.data.querydsl.QuerydslUtils;
+import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryInformation;
@@ -33,6 +34,8 @@ import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.util.Assert;
+
+import org.springframework.data.repository.query.QueryLookupStrategy;
 
 /**
  * @author Peter Milne
@@ -75,7 +78,7 @@ public class AerospikeRepositoryFactory extends RepositoryFactorySupport {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T, ID extends Serializable> EntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
+	public <T, ID> EntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
 		AerospikePersistentEntity<?> entity = context.getPersistentEntity(domainClass);
 		if (entity == null) {
 			throw new MappingException(
@@ -113,7 +116,7 @@ public class AerospikeRepositoryFactory extends RepositoryFactorySupport {
 	 * @return
 	 */
 	private static boolean isQueryDslRepository(Class<?> repositoryInterface) {
-		return QUERY_DSL_PRESENT && QueryDslPredicateExecutor.class.isAssignableFrom(repositoryInterface);
+		return QuerydslUtils.QUERY_DSL_PRESENT && QuerydslPredicate.class.isAssignableFrom(repositoryInterface);
 	}
 
 	/*
@@ -121,8 +124,11 @@ public class AerospikeRepositoryFactory extends RepositoryFactorySupport {
 	 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getQueryLookupStrategy(org.springframework.data.repository.query.QueryLookupStrategy.Key, org.springframework.data.repository.query.EvaluationContextProvider)
 	 */
 	@Override
-	protected QueryLookupStrategy getQueryLookupStrategy(Key key, EvaluationContextProvider evaluationContextProvider) {
-		return new AerospikeQueryLookupStrategy(key, evaluationContextProvider, this.aerospikeOperations, this.queryCreator);
+	protected Optional<QueryLookupStrategy> getQueryLookupStrategy(Key key, EvaluationContextProvider evaluationContextProvider) {
+		
+		//return new AerospikeQueryLookupStrategy(key, evaluationContextProvider, this.aerospikeOperations, this.queryCreator);
+		return Optional.of( new AerospikeQueryLookupStrategy(key, evaluationContextProvider, this.aerospikeOperations, this.queryCreator));
+				
 	}
 
 	/**

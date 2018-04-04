@@ -9,16 +9,19 @@ import org.springframework.data.aerospike.sample.SimpleObject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 public class RepositoriesIntegrationTests extends BaseIntegrationTests {
 
     @Autowired
     CompositeObjectRepository repository;
 
     @Test
-    public void findOne_shouldReturnNullForNonExistingKey() throws Exception {
-        CompositeObject one = repository.findOne("non-existing-id");
+    public void findById_shouldReturnNullForNonExistingKey() throws Exception {
+        Optional<CompositeObject> one = repository.findById("non-existing-id");
 
-        assertThat(one).isNull();
+        assertThat(one).isNotNull();
+        assertThat(one.isPresent()).isFalse();
     }
 
     @Test
@@ -30,9 +33,9 @@ public class RepositoriesIntegrationTests extends BaseIntegrationTests {
                 .build();
         repository.save(expected);
 
-        CompositeObject actual = repository.findOne(expected.getId());
+        Optional<CompositeObject> actual = repository.findById(expected.getId());
 
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual.get()).isEqualTo(expected);
     }
 
     @Test
@@ -42,10 +45,10 @@ public class RepositoriesIntegrationTests extends BaseIntegrationTests {
                 .id(id)
                 .build();
         repository.save(expected);
-        assertThat(repository.findOne(id)).isNotNull();
+        assertThat(repository.findById(id).isPresent()).isTrue();
 
         repository.delete(expected);
 
-        assertThat(repository.findOne(id)).isNull();
+        assertThat(repository.findById(id).isPresent()).isFalse();
     }
 }

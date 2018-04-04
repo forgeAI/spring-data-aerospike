@@ -94,15 +94,16 @@ public class AerospikeRepositoryFactoryTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetTargetRepositoryRepositoryInformation() {
-		when(context.getPersistentEntity(Person.class)).thenReturn(entity);
-		when(entity.getType()).thenReturn(Person.class);
-		Mockito.<Class<?>>when(repositoryInformation.getDomainType()).thenReturn(Person.class);
-		Mockito.<Class<?>>when(repositoryInformation.getRepositoryBaseClass()).thenReturn(Person.class);
+		// Following Mockito stubs are not required and cause the test to fail.
+		//when(context.getPersistentEntity(Person.class)).thenReturn(entity);
+		//when(entity.getType()).thenReturn(Person.class);
+		//Mockito.<Class<?>>when(repositoryInformation.getDomainType()).thenReturn(Person.class);
+		//Mockito.<Class<?>>when(repositoryInformation.getRepositoryBaseClass()).thenReturn(Person.class);
 		when(aerospikeRepositoryFactoryMock.getTargetRepository(repositoryInformation)).thenReturn(new Object());
 
 		Person.class.getDeclaredConstructors();
 
-			Object repository = aerospikeRepositoryFactoryMock.getTargetRepository(repositoryInformation);
+		Object repository = aerospikeRepositoryFactoryMock.getTargetRepository(repositoryInformation);
 		assertThat(repository, is(notNullValue()));
 	}
 

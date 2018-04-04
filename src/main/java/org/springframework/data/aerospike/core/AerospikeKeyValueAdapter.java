@@ -78,7 +78,7 @@ public class AerospikeKeyValueAdapter extends AbstractKeyValueAdapter {
 	 * @see org.springframework.data.keyvalue.core.KeyValueAdapter#put(java.io.Serializable, java.lang.Object, java.io.Serializable)
 	 */
 	@Override
-	public Object put(Serializable id, Object item, Serializable keyspace) {
+	public Object put(Object id, Object item, String keyspace) {
 		AerospikeWriteData data = AerospikeWriteData.forWrite();
 
 		converter.write(item, data);
@@ -93,7 +93,7 @@ public class AerospikeKeyValueAdapter extends AbstractKeyValueAdapter {
 	 * @see org.springframework.data.keyvalue.core.KeyValueAdapter#contains(java.io.Serializable, java.io.Serializable)
 	 */
 	@Override
-	public boolean contains(Serializable id, Serializable keyspace) {
+	public boolean contains(Object id, String keyspace) {
 
 		return client.exists(null, makeKey(keyspace.toString(), id.toString()));
 	}
@@ -103,7 +103,7 @@ public class AerospikeKeyValueAdapter extends AbstractKeyValueAdapter {
 	 * @see org.springframework.data.keyvalue.core.KeyValueAdapter#get(java.io.Serializable, java.io.Serializable)
 	 */
 	@Override
-	public Object get(Serializable id, Serializable keyspace) {
+	public Object get(Object id, String keyspace) {
 
 		Key key = makeKey(keyspace.toString(), id.toString());
 		Record record = client.get(null, key);
@@ -119,7 +119,7 @@ public class AerospikeKeyValueAdapter extends AbstractKeyValueAdapter {
 	 * @see org.springframework.data.keyvalue.core.KeyValueAdapter#delete(java.io.Serializable, java.io.Serializable)
 	 */
 	@Override
-	public Object delete(Serializable id, Serializable keyspace) {
+	public Object delete(Object id, String keyspace) {
 
 		Key key = new Key(namespace, keyspace.toString(), id.toString());
 
@@ -139,7 +139,7 @@ public class AerospikeKeyValueAdapter extends AbstractKeyValueAdapter {
 	 * @see org.springframework.data.keyvalue.core.KeyValueAdapter#getAllOf(java.io.Serializable)
 	 */
 	@Override
-	public Collection<?> getAllOf(Serializable keyspace) {
+	public Collection<?> getAllOf(String keyspace) {
 		
 		Statement statement = new Statement();
 		statement.setNamespace(namespace);
@@ -174,7 +174,7 @@ public class AerospikeKeyValueAdapter extends AbstractKeyValueAdapter {
 	 * @see org.springframework.data.keyvalue.core.KeyValueAdapter#deleteAllOf(java.io.Serializable)
 	 */
 	@Override
-	public void deleteAllOf(Serializable keyspace) {
+	public void deleteAllOf(String keyspace) {
 		//"set-config:context=namespace;id=namespace_name;set=set_name;set-delete=true;"
 		Utils.infoAll(client, "set-config:context=namespace;id=" + this.namespace + ";set=" + keyspace.toString() + ";set-delete=true;");
 	}
@@ -198,20 +198,20 @@ public class AerospikeKeyValueAdapter extends AbstractKeyValueAdapter {
 	}
 	
 	@Override
-	public Collection<?> find(KeyValueQuery<?> query, Serializable keyspace) {
+	public Collection<?> find(KeyValueQuery<?> query, String keyspace) {
 		// TODO Auto-generated method stub
 		return super.find(query, keyspace);
 	}
 
 	@Override
-	public CloseableIterator<Entry<Serializable, Object>> entries(
-			Serializable keyspace) {
+	public CloseableIterator<Entry<Object, Object>> entries(
+			String keyspace) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public long count(Serializable keyspace) {
+	public long count(String keyspace) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

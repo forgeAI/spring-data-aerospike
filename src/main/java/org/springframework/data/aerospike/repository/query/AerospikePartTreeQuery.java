@@ -102,7 +102,7 @@ public class AerospikePartTreeQuery implements RepositoryQuery {
 		Criteria criteria = (Criteria) query.getCritieria();
 		Query<?> q = new Query(criteria);
 
-		if (accessor.getPageable() != null) {
+		if (accessor.getPageable() != null && accessor.getPageable().isPaged()) {
 			q.setOffset(accessor.getPageable().getOffset());
 			q.setRows(accessor.getPageable().getPageSize());
 		} else {

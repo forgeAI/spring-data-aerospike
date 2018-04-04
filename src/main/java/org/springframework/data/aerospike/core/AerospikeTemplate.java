@@ -517,7 +517,7 @@ public class AerospikeTemplate implements AerospikeOperations {
 
 		final Iterable<T> results = findAllUsingQuery(type, secondaryFilter, qualifiers.toArray(new Qualifier[qualifiers.size()]));
 		List<?> returnedList = IterableConverter.toList(results);
-		if(results!=null && query.getSort()!=null){
+		if(results!=null && query.getSort()!=null && query.getSort().isSorted()){
 			Comparator comparator = aerospikePropertyComparator(query);
 			Collections.sort(returnedList, comparator);
 		}

@@ -74,7 +74,7 @@ public class PersonRepositoryIntegrationTests extends BaseIntegrationTests {
 		createIndexIfNotExists(Person.class, "first_name_index", "firstname", IndexType.STRING);
 		createIndexIfNotExists(Person.class, "person_age_index", "age", IndexType.NUMERIC);
 
-		all = (List<Person>) repository.save(Arrays.asList(oliver, dave, donny, carter, boyd, stefan, leroi, leroi2, alicia));
+		all = (List<Person>) repository.saveAll(Arrays.asList(oliver, dave, donny, carter, boyd, stefan, leroi, leroi2, alicia));
 	}
 
 	@Test
@@ -84,9 +84,9 @@ public class PersonRepositoryIntegrationTests extends BaseIntegrationTests {
 
 	@Test
 	public void findsPersonById() throws Exception {
-		Person person = repository.findOne(dave.getId().toString());
-		Assert.isInstanceOf(Person.class, person);
-		assertThat(repository.findOne(dave.getId().toString()), is(dave));
+		Optional<Person> person = repository.findById(dave.getId().toString());
+		Assert.isInstanceOf(Person.class, person.get());
+		assertThat(repository.findById(dave.getId().toString()).get(), is(dave));
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class PersonRepositoryIntegrationTests extends BaseIntegrationTests {
 
 	@Test
 	public void findsAllWithGivenIds() {
-		List<Person> result = (List<Person>) repository.findAll(Arrays.asList(dave.id, boyd.id));
+		List<Person> result = (List<Person>) repository.findAllById(Arrays.asList(dave.id, boyd.id));
 		assertThat(result.size(), is(2));
 		assertThat(result, hasItem(dave));
 		assertThat(result, not(hasItems(oliver, carter, stefan, leroi, alicia)));
@@ -121,7 +121,7 @@ public class PersonRepositoryIntegrationTests extends BaseIntegrationTests {
 
 	@Test
 	public void deletesPersonByIdCorrectly() {
-		repository.delete(dave.getId().toString());
+		repository.deleteById(dave.getId().toString());
 		List<Person> result = (List<Person>) repository.findAll();
 		assertThat(result.size(), is(all.size() - 1));
 		assertThat(result, not(hasItem(dave)));

@@ -25,7 +25,7 @@ import com.aerospike.helper.query.Qualifier;
 public class Query<T> {
 
 	private Sort sort;
-	private int offset = -1;
+	private long offset = -1;
 	private int rows = -1;
 	private final Map<String, CriteriaDefinition> criteria = new LinkedHashMap<String, CriteriaDefinition>();
 
@@ -110,7 +110,7 @@ public class Query<T> {
 	 * 
 	 * @return negative value if not set.
 	 */
-	public int getOffset() {
+	public long getOffset() {
 		return this.offset;
 	}
 
@@ -128,7 +128,7 @@ public class Query<T> {
 	 * 
 	 * @param offset use negative value for none.
 	 */
-	public void setOffset(int offset) {
+	public void setOffset(long offset) {
 		this.offset = offset;
 	}
 

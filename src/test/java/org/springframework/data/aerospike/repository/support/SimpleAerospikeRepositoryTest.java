@@ -23,6 +23,7 @@ import org.springframework.data.keyvalue.core.IterableConverter;
 import org.springframework.data.repository.core.EntityInformation;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -66,9 +67,10 @@ public class SimpleAerospikeRepositoryTest {
 	public void testFindOne() {
 		when(operations.findById("21", Person.class)).thenReturn(testPerson);
 
-		Person person = aerospikeRepository.findOne("21");
+		Optional<Person> person = aerospikeRepository.findById("21");
 
-		assertThat(person.getFirstName()).isEqualTo("Jean");
+		assertThat(person.isPresent()).isTrue();
+		assertThat(person.get().getFirstName()).isEqualTo("Jean");
 	}
 
 	@Test
@@ -81,7 +83,7 @@ public class SimpleAerospikeRepositoryTest {
 
 	@Test
 	public void testSaveIterableOfS() {
-		List<Person> result = aerospikeRepository.save(testPersons);
+		List<Person> result = aerospikeRepository.saveAll(testPersons);
 
 		assertThat(result).isEqualTo(testPersons);
 		verify(operations, times(testPersons.size())).save(any());
@@ -104,22 +106,23 @@ public class SimpleAerospikeRepositoryTest {
 
 	@Test
 	public void testFindAllPageable() {
-		Page<Person> page = new PageImpl<>(IterableConverter.toList(testPersons), new PageRequest(0, 2), 5);
+		Page<Person> page = new PageImpl<>(IterableConverter.toList(testPersons), PageRequest.of(0, 2), 5);
 
-		doReturn(testPersons).when(operations).findInRange(0, 2, null, Person.class);
-		doReturn(5L).when(operations).count(Mockito.anyVararg(), anyString());
+		doReturn(testPersons).when(operations).findInRange(0, 2, Sort.unsorted(), Person.class);
+		doReturn(5L).when(operations).count(Mockito.any(), anyString());
+		doReturn("person").when(operations).getSetName(Mockito.any());
 
-		Page<Person> result = aerospikeRepository.findAll(new PageRequest(0, 2));
+		Page<Person> result = aerospikeRepository.findAll(PageRequest.of(0, 2));
 
-		verify(operations).findInRange(0, 2, null, Person.class);
+		verify(operations).findInRange(0, 2, Sort.unsorted(), Person.class);
 		assertThat(result).isEqualTo(page);
 	}
 
 	@Test
 	public void testExists() {
 		when(operations.exists(testPerson.getId(), Person.class)).thenReturn(true);
-
-		boolean exists = aerospikeRepository.exists(testPerson.getId());
+		
+		boolean exists = aerospikeRepository.existsById(testPerson.getId());
 		assertThat(exists).isTrue();
 	}
 
@@ -135,23 +138,23 @@ public class SimpleAerospikeRepositoryTest {
 	@Test
 	public void testFindAllIterableOfID() {
 		List<String> ids = testPersons.stream().map(Person::getId).collect(toList());
-		when(aerospikeRepository.findAll(ids)).thenReturn(testPersons);
+		when(aerospikeRepository.findAllById(ids)).thenReturn(testPersons);
 
-		List<Person> fetchList = (List<Person>) aerospikeRepository.findAll(ids);
+		List<Person> fetchList = (List<Person>) aerospikeRepository.findAllById(ids);
 
 		assertThat(fetchList).isEqualTo(testPersons);
 	}
 
 	@Test
 	public void testDeleteID() {
-		aerospikeRepository.delete("one");
+		aerospikeRepository.deleteById("one");
 
 		verify(operations).delete("one", Person.class);
 	}
 
 	@Test
 	public void testDeleteIterableOfQextendsT() {
-		aerospikeRepository.delete(testPersons);
+		aerospikeRepository.deleteAll(testPersons);
 
 		verify(operations, times(testPersons.size())).delete(any(Person.class));
 	}

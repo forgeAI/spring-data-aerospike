@@ -13,6 +13,7 @@ import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 public class SimpleAerospikeRepository<T, ID extends Serializable> implements AerospikeRepository<T, ID> {
 
@@ -30,8 +31,8 @@ public class SimpleAerospikeRepository<T, ID extends Serializable> implements Ae
 	 * @see org.springframework.data.repository.CrudRepository#findOne(java.io.Serializable)
 	 */
 	@Override
-	public T findOne(ID id) {
-		return operations.findById(id, entityInformation.getJavaType());
+	public Optional<T> findById(ID id) {
+		return Optional.ofNullable(operations.findById(id, entityInformation.getJavaType()));
 	}
 
 	@Override
@@ -40,7 +41,8 @@ public class SimpleAerospikeRepository<T, ID extends Serializable> implements Ae
 		return entity;
 	}
 
-	public <S extends T> List<S> save(Iterable<S> entities) {
+	@Override
+	public <S extends T> List<S> saveAll(Iterable<S> entities) {
 		Assert.notNull(entities, "The given Iterable of entities not be null!");
 
 		List<S> result = IterableConverter.toList(entities);
@@ -77,17 +79,22 @@ public class SimpleAerospikeRepository<T, ID extends Serializable> implements Ae
 			return new PageImpl<T>(result, null, result.size());
 		}
 
-		Iterable<T> content = operations.findInRange(pageable.getOffset(), pageable.getPageSize(), pageable.getSort(),entityInformation.getJavaType());
+		// TODO: Aerospike findInRange assumes int for offset.  Check for lossy data here.
+		Assert.state(pageable.getOffset() < Integer.MAX_VALUE);
+		Iterable<T> content = operations.findInRange((int)pageable.getOffset(), pageable.getPageSize(), pageable.getSort(),entityInformation.getJavaType());
 
 		String setName = operations.getSetName(entityInformation.getJavaType());
-		return new PageImpl<T>(IterableConverter.toList(content), pageable, this.operations.count(entityInformation.getJavaType(), setName));
+		
+		long count = this.operations.count(entityInformation.getJavaType(), setName);
+		
+		return new PageImpl<T>(IterableConverter.toList(content), pageable, count);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.springframework.data.repository.CrudRepository#exists(java.io.Serializable)
 	 */
 	@Override
-	public boolean exists(ID id) {
+	public boolean existsById(ID id) {
 		return operations.exists(id, entityInformation.getJavaType());
 	}
 	/* (non-Javadoc)
@@ -103,7 +110,7 @@ public class SimpleAerospikeRepository<T, ID extends Serializable> implements Ae
 	 * @see org.springframework.data.repository.CrudRepository#findAll(java.lang.Iterable)
 	 */
 	@Override
-	public Iterable<T> findAll(Iterable<ID> ids) {
+	public Iterable<T> findAllById(Iterable<ID> ids) {
 		Assert.notNull(ids, "List of ids must not be null!");
 
 		List<ID> idList = IterableConverter.toList(ids);
@@ -122,7 +129,7 @@ public class SimpleAerospikeRepository<T, ID extends Serializable> implements Ae
 	 * @see org.springframework.data.repository.CrudRepository#delete(java.io.Serializable)
 	 */
 	@Override
-	public void delete(ID id) {
+	public void deleteById(ID id) {
 		Assert.notNull(id, "The given id must not be null!");
 		operations.delete(id, entityInformation.getJavaType());
 		
@@ -132,7 +139,7 @@ public class SimpleAerospikeRepository<T, ID extends Serializable> implements Ae
 	 * @see org.springframework.data.repository.CrudRepository#delete(java.lang.Iterable)
 	 */
 	@Override
-	public void delete(Iterable<? extends T> entities) {
+	public void deleteAll(Iterable<? extends T> entities) {
 		for (T entity : entities) {
 			delete(entity);
 		}
@@ -165,5 +172,4 @@ public class SimpleAerospikeRepository<T, ID extends Serializable> implements Ae
 	public boolean indexExists(String indexName) {
 		return operations.indexExists(indexName);
 	}
-
 }

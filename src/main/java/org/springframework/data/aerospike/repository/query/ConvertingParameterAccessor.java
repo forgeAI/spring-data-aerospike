@@ -4,6 +4,7 @@
 package org.springframework.data.aerospike.repository.query;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.springframework.data.aerospike.core.AerospikeWriter;
 import org.springframework.data.domain.Pageable;
@@ -95,9 +96,9 @@ public class ConvertingParameterAccessor implements AerospikeParameterAccessor {
 	}
 
 	@Override
-	public Class<?> getDynamicProjection() {
+	public Optional<Class<?>> getDynamicProjection() {
 		// TODO Auto-generated method stub
-		return null;
+		return Optional.empty();
 	}
 
 }

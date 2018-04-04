@@ -19,6 +19,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Optional;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.aerospike.BaseIntegrationTests;
@@ -40,7 +42,7 @@ public class CustomerRepositoriesIntegrationTests extends BaseIntegrationTests {
 	@Test
 	public void testExists() {
 		repository.save(new Customer("dave-001", "Dave", "Matthews"));
-		boolean exists = repository.exists("dave-001");
+		boolean exists = repository.existsById("dave-001");
 		assertTrue(exists);
 	}
 
@@ -52,11 +54,12 @@ public class CustomerRepositoriesIntegrationTests extends BaseIntegrationTests {
 	@Test
 	public void testReadById() {
 		Customer customer = repository.save(new Customer("dave-001", "Dave", "Matthews"));
-		Customer findById = repository.findOne("dave-001");
+		Optional<Customer> findById = repository.findById("dave-001");
 
 		assertNotNull(findById);
-		assertEquals(customer.getLastname(), findById.getLastname());
-		assertEquals(customer.getFirstname(), findById.getFirstname());
+		assertTrue(findById.isPresent());
+		assertEquals(customer.getLastname(), findById.get().getLastname());
+		assertEquals(customer.getFirstname(), findById.get().getFirstname());
 	}
 
 }

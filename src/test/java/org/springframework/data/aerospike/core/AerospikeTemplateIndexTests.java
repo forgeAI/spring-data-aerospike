@@ -12,6 +12,7 @@ import org.springframework.data.aerospike.repository.query.Criteria;
 import org.springframework.data.aerospike.repository.query.Query;
 
 import java.text.SimpleDateFormat;
+import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -147,7 +148,9 @@ public class AerospikeTemplateIndexTests extends BaseIntegrationTests {
 		Qualifier qual1 = new Qualifier("age", Qualifier.FilterOperation.EQ, Value.get(25));
 		Iterable<Person> it = template.findAllUsingQuery(Person.class, filter, qual1);
 
-		assertThat(it).containsOnly(p1, p8);
+		// Changed to containsExactlyInAnyOrder because containsOnly was failing even though the result only contained the two 
+		// entries that we are interested in.
+		assertThat(it).containsExactlyInAnyOrder(p1, p8);
 	}
 
 	@Test
