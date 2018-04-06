@@ -22,8 +22,8 @@
     <properties>
         <bundlor.enabled>false</bundlor.enabled>
         <source.level>1.8</source.level>
-        <aerospike>4.1.5</aerospike>
-        <aerospike-helper-java.version>1.2.2</aerospike-helper-java.version>
+        <aerospike>4.1.4</aerospike>
+        <aerospike-helper-java.version>1.2.1</aerospike-helper-java.version>
         <springdata.commons>2.0.5.RELEASE</springdata.commons>
         <springdata.keyvalue>2.0.5.RELEASE</springdata.keyvalue>
         <dist.key>DATAAERO</dist.key>
@@ -181,6 +181,12 @@
             <groupId>com.aerospike</groupId>
             <artifactId>aerospike-client</artifactId>
         </dependency>
+        
+        <dependency>
+    		<groupId>org.slf4j</groupId>
+    		<artifactId>log4j-over-slf4j</artifactId>
+    		<version>${log4j-over-slf4j.version}</version>
+		</dependency>
 
         <dependency>
             <groupId>com.aerospike</groupId>
@@ -219,12 +225,7 @@
             <scope>test</scope>
         </dependency>
         
-        <dependency>
-    		<groupId>org.slf4j</groupId>
-    		<artifactId>log4j-over-slf4j</artifactId>
-    		<version>${log4j-over-slf4j.version}</version>
-    		<scope>test</scope>
-		</dependency>
+
 
     </dependencies>
 
