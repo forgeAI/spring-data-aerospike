@@ -87,6 +87,9 @@ public class MappingAerospikeReadConverter implements EntityReader<Object, Aeros
 	private <T> T getIdValue(Key key, Map<String, Object> data, AerospikePersistentProperty property) {
 		Value userKey = key.userKey;
 		Object value = userKey == null ? data.get(USER_KEY) : userKey.getObject();
+		if(value == null) {
+			value = data.get("_id");
+		}
 		Assert.notNull(value, "Id must not be null!");
 		return (T) convertIfNeeded(value, property.getType());
 	}
